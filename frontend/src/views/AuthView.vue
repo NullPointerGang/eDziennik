@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 
 type Mode = 'login' | 'register'
 const mode = ref<Mode>('login')
@@ -8,28 +9,44 @@ const mode = ref<Mode>('login')
 const loginForm = reactive({ email: '', password: '' })
 const registerForm = reactive({ name: '', email: '', password: '', confirm: '' })
 
-const auth = useAuthStore()
+// role selection for both flows
+const role = ref<'student' | 'teacher'>('student')
 
-function onLoginSubmit() {
-  // TODO: replace with real API call; demo data below
-  auth.setSession({
-    token: 'demo-token',
-    user: { id: '1', name: registerForm.name || 'User', email: loginForm.email }
-  })
-  alert('Zalogowano')
+const auth = useAuthStore()
+const router = useRouter()
+
+async function onLoginSubmit() {
+  try {
+    await auth.login(loginForm.email, loginForm.password)
+    if (auth.role === 'student') {
+      router.push({ name: 'dashboard-student-home' })
+    } else if (auth.role === 'teacher') {
+      router.push({ name: 'dashboard-teacher' })
+    } else {
+      router.push({ name: 'dashboard' })
+    }
+  } catch (e: any) {
+    alert(e?.message || 'Login error')
+  }
 }
 
-function onRegisterSubmit() {
+async function onRegisterSubmit() {
   if (registerForm.password !== registerForm.confirm) {
     alert('Hasła nie są takie same')
     return
   }
-  // TODO: replace with real API call; demo login after register
-  auth.setSession({
-    token: 'demo-token',
-    user: { id: '1', name: registerForm.name, email: registerForm.email }
-  })
-  alert('Zarejestrowano')
+  try {
+    await auth.register(registerForm.name, registerForm.email, registerForm.password, role.value)
+    if (auth.role === 'student') {
+      router.push({ name: 'dashboard-student-home' })
+    } else if (auth.role === 'teacher') {
+      router.push({ name: 'dashboard-teacher' })
+    } else {
+      router.push({ name: 'dashboard' })
+    }
+  } catch (e: any) {
+    alert(e?.message || 'Register error')
+  }
 }
 </script>
 
@@ -78,6 +95,13 @@ function onRegisterSubmit() {
           <span>Potwierdzenie hasła</span>
           <input type="password" v-model="registerForm.confirm" required />
         </label>
+        <label>
+          <span>Rola</span>
+          <select v-model="role" required>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+          </select>
+        </label>
         <button type="submit" class="button">Rejestracja</button>
       </form>
     </div>
@@ -91,7 +115,7 @@ function onRegisterSubmit() {
 .panel { background: var(--color-panel); border: 1px solid rgba(148,163,184,.2); border-radius: 12px; padding: 16px; }
 .form { display: grid; gap: 12px; }
 label { display: grid; gap: 6px; }
-input {
+input, select {
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid rgba(148,163,184,.25);
