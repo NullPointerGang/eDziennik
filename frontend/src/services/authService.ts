@@ -1,9 +1,10 @@
-import { getJSON, setJSON } from '@/utils/storage'
+import { httpClient } from '@/utils/http'
 
 export type Role = 'student' | 'teacher'
 
 export type RegisterInput = {
-  name: string
+  first_name: string
+  last_name: string
   email: string
   password: string
   role: Role
@@ -16,7 +17,8 @@ export type LoginInput = {
 
 export type AuthUser = {
   id: string
-  name: string
+  first_name: string
+  last_name: string
   email: string
   role: Role
 }
@@ -24,60 +26,87 @@ export type AuthUser = {
 export type AuthSession = {
   token: string
   user: AuthUser
+  roles: string[]
+  userId: string
 }
 
-const USERS_KEY = 'auth_users'
-
-function readUsers(): Record<string, { id: string; name: string; email: string; role: Role; password: string }> {
-  return getJSON(USERS_KEY) ?? {}
+function validateEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
-function writeUsers(users: Record<string, { id: string; name: string; email: string; role: Role; password: string }>): void {
-  setJSON(USERS_KEY, users)
+function validatePassword(password: string): boolean {
+  return password.length >= 6
 }
 
-function uid(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36)
+function validateName(name: string): boolean {
+  return name.trim().length >= 2
 }
 
 export async function register(input: RegisterInput): Promise<AuthSession> {
-  // In future: replace with POST /api/auth/register
-  const users = readUsers()
-  if (users[input.email]) {
-    throw new Error('User already exists')
+  if (!validateEmail(input.email)) {
+    throw new Error('Invalid email format')
   }
-  const id = uid()
-  users[input.email] = {
-    id,
-    name: input.name,
-    email: input.email,
-    role: input.role,
-    password: input.password,
+  if (!validatePassword(input.password)) {
+    throw new Error('Password must be at least 6 characters')
   }
-  writeUsers(users)
+  if (!validateName(input.first_name)) {
+    throw new Error('First name must be at least 2 characters')
+  }
+  if (!validateName(input.last_name)) {
+    throw new Error('Last name must be at least 2 characters')
+  }
 
-  const session: AuthSession = {
-    token: 'demo-' + uid(),
-    user: { id, name: input.name, email: input.email, role: input.role },
+  const data = await httpClient.post<any>('/auth/register', input)
+  
+  return {
+    token: data.access_token,
+    user: {
+      id: data.user.id.toString(),
+      first_name: data.user.first_name,
+      last_name: data.user.last_name,
+      email: data.user.email,
+      role: data.user.roles?.[0] as Role || 'student',
+    },
+    roles: data.roles || [],
+    userId: data.user.id.toString()
   }
-  return new Promise((resolve) => setTimeout(() => resolve(session), 300))
 }
 
-export async function login(input: LoginInput): Promise<AuthSession> {
-  // In future: replace with POST /api/auth/login
-  const users = readUsers()
-  const existing = users[input.email]
-  if (!existing || existing.password !== input.password) {
-    throw new Error('Invalid credentials')
+export async function login(input: LoginInput, rememberMe = false): Promise<AuthSession> {
+  if (!validateEmail(input.email)) {
+    throw new Error('Invalid email format')
   }
-  const session: AuthSession = {
-    token: 'demo-' + uid(),
-    user: { id: existing.id, name: existing.name, email: existing.email, role: existing.role },
+  if (!validatePassword(input.password)) {
+    throw new Error('Password must be at least 6 characters')
   }
-  return new Promise((resolve) => setTimeout(() => resolve(session), 250))
+
+  const data = await httpClient.post<any>(`/auth/login?remember_me=${rememberMe}`, input)
+  
+  return {
+    token: data.access_token,
+    user: {
+      id: data.user.id.toString(),
+      first_name: data.user.first_name,
+      last_name: data.user.last_name,
+      email: data.user.email,
+      role: data.user.roles?.[0] as Role || 'student',
+    },
+    roles: data.roles || [],
+    userId: data.user.id.toString()
+  }
 }
 
 export async function logout(): Promise<void> {
-  // In future: replace with POST /api/auth/logout or token revoke
-  return new Promise((resolve) => setTimeout(() => resolve(), 100))
+  await httpClient.post('/auth/logout')
+}
+
+export async function getUserData(userId: string): Promise<AuthUser> {
+  const data = await httpClient.get<any>(`/users/${userId}`)
+  return {
+    id: data.id.toString(),
+    first_name: data.first_name,
+    last_name: data.last_name,
+    email: data.email,
+    role: data.roles?.[0] as Role || 'student',
+  }
 } 

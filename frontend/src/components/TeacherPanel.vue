@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { Calendar1, House, BookPlus, Mail } from 'lucide-vue-next'
-
+import { House, Calendar1, Plus } from 'lucide-vue-next'
 </script>
 
 <template>
   <aside class="menu">
-    <RouterLink class="button" to="/dashboard/home"><House /></RouterLink>
-    <RouterLink class="button" to="/dashboard/calendar"><Calendar1 /></RouterLink>
-    <RouterLink class="button" to="/dashboard/grades"><BookPlus /></RouterLink>
-    <RouterLink class="button" to="/dashboard/messages"><Mail /></RouterLink>
+    <RouterLink class="button" to="/dashboard/teacher"><House /></RouterLink>
+    <RouterLink class="button" to="/dashboard/teacher/calendar"><Calendar1 /></RouterLink>
+    <RouterLink class="button" to="/dashboard/teacher/grades"><Plus /></RouterLink>
   </aside>
 </template>
 

@@ -6,8 +6,8 @@ import { useRouter } from 'vue-router'
 type Mode = 'login' | 'register'
 const mode = ref<Mode>('login')
 
-const loginForm = reactive({ email: '', password: '' })
-const registerForm = reactive({ name: '', email: '', password: '', confirm: '' })
+const loginForm = reactive({ email: '', password: '', rememberMe: false })
+const registerForm = reactive({ firstName: '', lastName: '', email: '', password: '', confirm: '' })
 
 // role selection for both flows
 const role = ref<'student' | 'teacher'>('student')
@@ -15,9 +15,12 @@ const role = ref<'student' | 'teacher'>('student')
 const auth = useAuthStore()
 const router = useRouter()
 
+const error = ref('')
+
 async function onLoginSubmit() {
+  error.value = ''
   try {
-    await auth.login(loginForm.email, loginForm.password)
+    await auth.login(loginForm.email, loginForm.password, loginForm.rememberMe)
     if (auth.role === 'student') {
       router.push({ name: 'dashboard-student-home' })
     } else if (auth.role === 'teacher') {
@@ -26,17 +29,18 @@ async function onLoginSubmit() {
       router.push({ name: 'dashboard' })
     }
   } catch (e: any) {
-    alert(e?.message || 'Login error')
+    error.value = e?.message || 'Login error'
   }
 }
 
 async function onRegisterSubmit() {
+  error.value = ''
   if (registerForm.password !== registerForm.confirm) {
-    alert('Hasła nie są takie same')
+    error.value = 'Hasła nie są takie same'
     return
   }
   try {
-    await auth.register(registerForm.name, registerForm.email, registerForm.password, role.value)
+    await auth.register(registerForm.firstName, registerForm.lastName, registerForm.email, registerForm.password, role.value)
     if (auth.role === 'student') {
       router.push({ name: 'dashboard-student-home' })
     } else if (auth.role === 'teacher') {
@@ -45,7 +49,7 @@ async function onRegisterSubmit() {
       router.push({ name: 'dashboard' })
     }
   } catch (e: any) {
-    alert(e?.message || 'Register error')
+    error.value = e?.message || 'Register error'
   }
 }
 </script>
@@ -67,6 +71,7 @@ async function onRegisterSubmit() {
 
     <div class="panel">
       <form v-if="mode === 'login'" @submit.prevent="onLoginSubmit" class="form">
+        <div v-if="error" class="error">{{ error }}</div>
         <label>
           <span>Email</span>
           <input type="email" v-model="loginForm.email" required placeholder="you@example.com" />
@@ -75,13 +80,22 @@ async function onRegisterSubmit() {
           <span>Hasło</span>
           <input type="password" v-model="loginForm.password" required />
         </label>
+        <label class="checkbox">
+          <input type="checkbox" v-model="loginForm.rememberMe" />
+          <span>Zapamiętaj mnie</span>
+        </label>
         <button type="submit" class="button">LogIn</button>
       </form>
 
       <form v-else @submit.prevent="onRegisterSubmit" class="form">
+        <div v-if="error" class="error">{{ error }}</div>
         <label>
           <span>Imię</span>
-          <input type="text" v-model="registerForm.name" required />
+          <input type="text" v-model="registerForm.firstName" required />
+        </label>
+        <label>
+          <span>Nazwisko</span>
+          <input type="text" v-model="registerForm.lastName" required />
         </label>
         <label>
           <span>Email</span>
@@ -115,6 +129,9 @@ async function onRegisterSubmit() {
 .panel { background: var(--color-panel); border: 1px solid rgba(148,163,184,.2); border-radius: 12px; padding: 16px; }
 .form { display: grid; gap: 12px; }
 label { display: grid; gap: 6px; }
+.checkbox { display: flex; align-items: center; gap: 8px; }
+.checkbox input { width: auto; }
+.error { color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 8px 12px; border-radius: 6px; font-size: 14px; }
 input, select {
   padding: 10px 12px;
   border-radius: 8px;

@@ -9,11 +9,6 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/HomeView.vue'),
   },
   {
-    path: '/about',
-    name: 'about',
-    component: () => import('@/views/AboutView.vue'),
-  },
-  {
     path: '/auth',
     name: 'auth',
     component: () => import('@/views/AuthView.vue'),
@@ -37,11 +32,13 @@ const routes: RouteRecordRaw[] = [
     path: '/dashboard/teacher',
     name: 'dashboard-teacher',
     component: () => import('@/views/DashboardTeacherView.vue'),
+    meta: { roles: ['teacher'] },
   },
   {
     path: '/dashboard/student',
     name: 'dashboard-student',
     component: () => import('@/views/DashboardStudentView.vue'),
+    meta: { roles: ['student'] },
   },
   // Student endpoints under /dashboard/*
   {
@@ -61,6 +58,18 @@ const routes: RouteRecordRaw[] = [
     name: 'dashboard-student-grades',
     component: () => import('@/views/GradesView.vue'),
     meta: { roles: ['student'] },
+  },
+  {
+    path: '/dashboard/teacher/calendar',
+    name: 'dashboard-teacher-calendar',
+    component: () => import('@/views/ScheduleView.vue'),
+    meta: { roles: ['teacher'] },
+  },
+  {
+    path: '/dashboard/teacher/grades',
+    name: 'dashboard-teacher-grades',
+    component: () => import('@/views/TeacherGradesView.vue'),
+    meta: { roles: ['teacher'] },
   },
   {
     path: '/schedule',
@@ -91,12 +100,16 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  const roles = to.meta.roles as string[] | undefined
-  if (!roles || roles.length === 0) return true
   const auth = useAuthStore()
-  if (!auth.role || !roles.includes(auth.role)) {
-    return { name: 'auth' }
+  
+  // Check role-based access for protected routes only
+  const roles = to.meta.roles as string[] | undefined
+  if (roles && roles.length > 0) {
+    if (!auth.isAuthenticated || !auth.role || !roles.includes(auth.role)) {
+      return { name: 'auth' }
+    }
   }
+  
   return true
 })
 

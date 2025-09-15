@@ -65,6 +65,13 @@ class AuthService:
                 "access_token": access_token,
                 "token_type": "bearer",
                 "roles": role_names,
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "roles": role_names
+                }
             }
         )
         response.set_cookie(
