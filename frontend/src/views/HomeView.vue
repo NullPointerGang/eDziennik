@@ -2,8 +2,8 @@
 
 <template>
   <section>
-    <h1>Главная</h1>
-    <p class="text-muted">Добро пожаловать в eDziennik.</p>
+    <h1>Główna</h1>
+    <p class="text-muted">Welcome to ePińczów!</p>
   </section>
 </template>
 

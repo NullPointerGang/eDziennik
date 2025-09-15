@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 
 type Mode = 'login' | 'register'
 const mode = ref<Mode>('login')
@@ -7,18 +8,28 @@ const mode = ref<Mode>('login')
 const loginForm = reactive({ email: '', password: '' })
 const registerForm = reactive({ name: '', email: '', password: '', confirm: '' })
 
+const auth = useAuthStore()
+
 function onLoginSubmit() {
-  // TODO: replace with real API call
-  alert(`Login: ${loginForm.email}`)
+  // TODO: replace with real API call; demo data below
+  auth.setSession({
+    token: 'demo-token',
+    user: { id: '1', name: registerForm.name || 'User', email: loginForm.email }
+  })
+  alert('Zalogowano')
 }
 
 function onRegisterSubmit() {
   if (registerForm.password !== registerForm.confirm) {
-    alert('Пароли не совпадают')
+    alert('Hasła nie są takie same')
     return
   }
-  // TODO: replace with real API call
-  alert(`Register: ${registerForm.email}`)
+  // TODO: replace with real API call; demo login after register
+  auth.setSession({
+    token: 'demo-token',
+    user: { id: '1', name: registerForm.name, email: registerForm.email }
+  })
+  alert('Zarejestrowano')
 }
 </script>
 
@@ -29,12 +40,12 @@ function onRegisterSubmit() {
         class="button"
         :class="{ active: mode === 'login' }"
         @click="mode = 'login'"
-      >Вход</button>
+      >LogIn</button>
       <button
         class="button"
         :class="{ active: mode === 'register' }"
         @click="mode = 'register'"
-      >Регистрация</button>
+      >Rejestracja</button>
     </div>
 
     <div class="panel">
@@ -44,15 +55,15 @@ function onRegisterSubmit() {
           <input type="email" v-model="loginForm.email" required placeholder="you@example.com" />
         </label>
         <label>
-          <span>Пароль</span>
+          <span>Hasło</span>
           <input type="password" v-model="loginForm.password" required />
         </label>
-        <button type="submit" class="button">Войти</button>
+        <button type="submit" class="button">LogIn</button>
       </form>
 
       <form v-else @submit.prevent="onRegisterSubmit" class="form">
         <label>
-          <span>Имя</span>
+          <span>Imię</span>
           <input type="text" v-model="registerForm.name" required />
         </label>
         <label>
@@ -60,14 +71,14 @@ function onRegisterSubmit() {
           <input type="email" v-model="registerForm.email" required placeholder="you@example.com" />
         </label>
         <label>
-          <span>Пароль</span>
+          <span>Hasło</span>
           <input type="password" v-model="registerForm.password" required />
         </label>
         <label>
-          <span>Подтверждение пароля</span>
+          <span>Potwierdzenie hasła</span>
           <input type="password" v-model="registerForm.confirm" required />
         </label>
-        <button type="submit" class="button">Зарегистрироваться</button>
+        <button type="submit" class="button">Rejestracja</button>
       </form>
     </div>
   </section>

@@ -2,8 +2,8 @@
 
 <template>
   <section>
-    <h1>О проекте</h1>
-    <p class="text-muted">Приложение для электронного дневника.</p>
+    <h1>O projekcie</h1>
+    <p class="text-muted">Aplikacja webowa dla elektronicznego dziennika.</p>
   </section>
 </template>
 

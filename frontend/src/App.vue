@@ -3,11 +3,11 @@
 <template>
   <header class="header">
     <div class="container header-inner">
-      <strong>eDziennik</strong>
+      <strong>ePińczów</strong>
       <nav class="nav">
-        <RouterLink class="button" to="/">Главная</RouterLink>
-        <RouterLink class="button" to="/about">О проекте</RouterLink>
-        <RouterLink class="button" to="/auth">Войти</RouterLink>
+        <RouterLink class="button" to="/">Główna</RouterLink>
+        <RouterLink class="button" to="/about">O projekcie</RouterLink>
+        <RouterLink class="button" to="/auth">LogIn</RouterLink>
       </nav>
     </div>
   </header>
