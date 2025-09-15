@@ -1,0 +1,1 @@
+Szkolny eDziennik Applikacja webowa 2025
