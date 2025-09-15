@@ -7,6 +7,7 @@
       <nav class="nav">
         <RouterLink class="button" to="/">Главная</RouterLink>
         <RouterLink class="button" to="/about">О проекте</RouterLink>
+        <RouterLink class="button" to="/auth">Войти</RouterLink>
       </nav>
     </div>
   </header>
