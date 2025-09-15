@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import { getGrades, type Grade } from '@/services/gradesService'
 import { httpClient } from '@/utils/http'
 import StudentPanel from '@/components/StudentPanel.vue'
+import ChatComponent from '@/components/ChatComponent.vue'
 
 const auth = useAuthStore()
 const grades = ref<Grade[]>([])
@@ -115,6 +116,7 @@ onMounted(async () => {
           <div><strong>Nauczyciel:</strong> {{ getTeacherName(hoveredGrade.teacher_id) }}</div>
           <div v-if="hoveredGrade.comment"><strong>Komentarz:</strong> {{ hoveredGrade.comment }}</div>
         </div>
+        <ChatComponent />
       </div>
     </div>
   </div>

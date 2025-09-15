@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import TeacherPanel from '@/components/TeacherPanel.vue'
+import ChatComponent from '@/components/ChatComponent.vue'
 import { useAuthStore } from '@/stores/auth'
 import { computed } from 'vue'
 
@@ -32,6 +33,7 @@ const days = Array.from({ length: 31 }, (_, i) => i + 1)
           </div>
         </div>
       </div>
+      <ChatComponent />
     </div>
   </div>
 </template>

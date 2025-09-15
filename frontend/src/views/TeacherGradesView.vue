@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import { httpClient } from '@/utils/http'
 import { getGrades, type Grade } from '@/services/gradesService'
 import TeacherPanel from '@/components/TeacherPanel.vue'
+import ChatComponent from '@/components/ChatComponent.vue'
 
 const auth = useAuthStore()
 const students = ref<Array<{ id: number; first_name: string; last_name: string }>>([])
@@ -151,6 +152,8 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+        </div>
+        <ChatComponent />
       </div>
     </div>
   </div>
