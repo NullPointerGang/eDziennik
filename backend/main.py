@@ -6,6 +6,11 @@ from core.logging import logger
 from lynx_logger.middleware import FastAPILoggingMiddleware
 
 from app.auth.api import auth_router
+from app.role.api import role_router
+from app.user.api import user_router
+from app.grades.api import grade_router
+from app.schedule.api import schedule_router
+from app.messages.api import message_router
 from core.database.db import init_db, seed_roles
 
 # Ensure ORM models are imported so SQLAlchemy can configure relationships
@@ -23,6 +28,11 @@ app = FastAPI(
 
 main_router = APIRouter(prefix="/api/v1")
 main_router.include_router(auth_router)
+main_router.include_router(role_router)
+main_router.include_router(user_router)
+main_router.include_router(grade_router)
+main_router.include_router(schedule_router)
+main_router.include_router(message_router)
 app.include_router(main_router)
 
 middleware_logger = logger.get_logger()
