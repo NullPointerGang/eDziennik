@@ -37,3 +37,7 @@ node_modules
 .env.production.local
 logs
 *.log 
+venv
+.venv
+pyenv
+*.db
